@@ -12,16 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pegawai_user', function (Blueprint $table) {
-            $table->id();
-            $table->string('pegawai');
-            $table->string('username')->unique();
+            $table->uuid('id')->primary();
+            $table->uuid('pegawai');
+            $table->string('username', 40)->unique();
             $table->string('password');
-            $table->string('name');
             $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('pegawai')->references('id')->on('pegawai')->onDelete('cascade');
-
         });
     }
 

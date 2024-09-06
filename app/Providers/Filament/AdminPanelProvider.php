@@ -26,6 +26,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+            ->revealablePasswords(false)
             ->path('admin')
             ->login(CustomLogin::class)
             ->colors([

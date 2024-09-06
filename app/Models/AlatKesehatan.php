@@ -14,6 +14,7 @@ class AlatKesehatan extends Model
 
     protected $table = 'alat_kesehatan';
 
+    protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
 

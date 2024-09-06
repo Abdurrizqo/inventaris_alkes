@@ -13,21 +13,21 @@ class PegawaiUser extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
-    protected $table = 'pegawai';
+    protected $table = 'pegawai_user';
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
         'pegawai',
         'username',
-        'name',
         'password',
     ];
     protected $hidden = [
         'password',
         'remember_token',
     ];
-    public function pegawai():BelongsTo
+
+    public function pegawaiJoin():BelongsTo
     {
         return $this->belongsTo(Pegawai::class, 'pegawai', 'id');
     }

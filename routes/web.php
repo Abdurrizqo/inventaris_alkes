@@ -14,8 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [AlkesController::class, 'homeControlle']);
+Route::get('/scan-qr-alkes', [AlkesController::class, 'scanAlkesView']);
+Route::post('/pinjam-barang', [AlkesController::class, 'pinjamBarang']);
+Route::get('/detail-peminjaman/{id}', [AlkesController::class, 'barangKembaliView']);
+
+Route::get('/barang-kembali/{id}', [AlkesController::class, 'updateBarangKembali']);
+Route::get('/barang-hilang/{id}', [AlkesController::class, 'updateBarangHilang']);
+
 
 Route::get('/data-alkes/{id}', [AlkesController::class, 'guestViewAlkes']);

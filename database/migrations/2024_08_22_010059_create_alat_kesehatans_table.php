@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('foto_alat_kesehatan');
             $table->string('foto_serial_number')->nullable(true);
             $table->string('nama_alat_kesehatan');
-            $table->string('kode_inventaris');
+            $table->string('kode_inventaris')->unique(true);
             $table->string('merk')->nullable(true);
             $table->string('type')->nullable(true);
             $table->string('nomer_seri');

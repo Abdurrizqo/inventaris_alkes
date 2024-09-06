@@ -25,6 +25,7 @@ use Endroid\QrCode\Label\LabelAlignment;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -37,6 +38,18 @@ class AlkesResource extends Resource
     protected static ?string $navigationLabel = 'Alat Kesehatan';
 
     protected static ?string $pluralModelLabel = 'Alat Kesehatan';
+
+    public static function generateRandomString(int $length = 6): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength
+            = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 
     public static function form(Form $form): Form
     {
@@ -58,7 +71,7 @@ class AlkesResource extends Resource
                     ->openable()
                     ->getUploadedFileNameForStorageUsing(
                         fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
-                            ->prepend($this->generateRandomString() . '-')
+                            ->prepend(AlkesResource::generateRandomString() . '-')
                     )
                     ->required()
                     ->maxSize(3024),
@@ -70,7 +83,7 @@ class AlkesResource extends Resource
                     ->moveFiles()
                     ->getUploadedFileNameForStorageUsing(
                         fn(TemporaryUploadedFile $file): string => (string) str($file->getClientOriginalName())
-                            ->prepend($this->generateRandomString() . '-')
+                            ->prepend(AlkesResource::generateRandomString() . '-')
                     )
                     ->maxSize(3024),
                 TextInput::make('kode_inventaris')
@@ -132,17 +145,48 @@ class AlkesResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('nama_alat_kesehatan'),
-                TextColumn::make('kode_inventaris'),
-                TextColumn::make('tanggal_pengadaan'),
+                TextColumn::make('nama_alat_kesehatan')
+                    ->searchable(),
+                TextColumn::make('kode_inventaris')
+                    ->searchable(),
+                TextColumn::make('tanggal_pengadaan')
+                    ->sortable(),
                 TextColumn::make('sumber_pendanaan'),
                 TextColumn::make('akd'),
                 TextColumn::make('akl'),
                 TextColumn::make('masa_garansi'),
-                TextColumn::make('nama_penyedia'),
+                TextColumn::make('nama_penyedia')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('klasifikasi')
+                    ->options([
+                        'Bedah dan Anestesi' => 'Bedah dan Anestesi',
+                        'Diagnostik' => 'Diagnostik',
+                        'Laboratorium' => 'Laboratorium',
+                        'Life Support' => 'Life Support',
+                        'Radiologi' => 'Radiologi',
+                        'Terapi' => 'Terapi',
+                    ]),
+                SelectFilter::make('teknologi')
+                    ->options([
+                        'Teknologi Sederhana' => 'Teknologi Sederhana',
+                        'Teknologi Menengah' => 'Teknologi Menengah',
+                        'Teknologi Tinggi' => 'Teknologi Tinggi',
+                    ]),
+                SelectFilter::make('risiko')
+                    ->options([
+                        'Risiko Rendah' => 'Risiko Rendah',
+                        'Risiko Menengah' => 'Risiko Menengah',
+                        'Risiko Tinggi' => 'Risiko Tinggi',
+                    ]),
+                SelectFilter::make('sumber_pendanaan')
+                    ->options([
+                        'APBD' => 'APBD',
+                        'BLUD' => 'BLUD',
+                        'DAk' => 'DAk',
+                        'HIBAH' => 'HIBAH',
+                    ]),
             ])
             ->actions([
                 ActionGroup::make([
@@ -158,15 +202,15 @@ class AlkesResource extends Resource
                             $result = Builder::create()
                                 ->writer(new PngWriter())
                                 ->writerOptions([])
-                                ->data(env('APP_URL').'/data-alkes/'.$record->id)
+                                ->data($record->id)
                                 ->encoding(new Encoding('UTF-8'))
                                 ->errorCorrectionLevel(ErrorCorrectionLevel::High)
                                 ->size(300)
                                 ->margin(10)
                                 ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-                                // ->logoPath(__DIR__ . '/assets/symfony.png')
-                                // ->logoResizeToWidth(50)
-                                // ->logoPunchoutBackground(true)
+                                ->logoPath(__DIR__ . '/logo_kudungga.png')
+                                ->logoResizeToWidth(175)
+                                ->logoPunchoutBackground(false)
                                 ->labelText($record->kode_inventaris)
                                 ->labelFont(new NotoSans(20))
                                 ->labelAlignment(LabelAlignment::Center)
@@ -206,17 +250,5 @@ class AlkesResource extends Resource
             'view' => Pages\ViewAlkes::route('/{record}'),
             'edit' => Pages\EditAlkes::route('/{record}/edit'),
         ];
-    }
-
-    private function generateRandomString(int $length = 6): string
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $charactersLength
-            = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-        return $randomString;
     }
 }

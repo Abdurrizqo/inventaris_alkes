@@ -7,12 +7,15 @@ use App\Filament\Resources\PegawaiUserResource\RelationManagers;
 use App\Models\PegawaiUser;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class PegawaiUserResource extends Resource
 {
@@ -25,10 +28,22 @@ class PegawaiUserResource extends Resource
         return $form
             ->schema([
                 Select::make('pegawai')
-                    ->relationship('pegawai', 'nama_pegawai')
+                    ->relationship('pegawaiJoin', 'nama_pegawai')
+                    ->label('Pegawai')
                     ->searchable()
                     ->preload()
                     ->required(),
+                TextInput::make('username')
+                    ->required()
+                    ->minLength(6)
+                    ->maxLength(40),
+                TextInput::make('password')
+                    ->password()
+                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                    ->dehydrated(fn($state) => filled($state))
+                    ->required(fn(string $context): bool => $context === 'create')
+                    ->minLength(6)
+                    ->maxLength(12),
             ]);
     }
 
@@ -36,7 +51,14 @@ class PegawaiUserResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('pegawaiJoin.nik')
+                    ->label('NIK')
+                    ->searchable(),
+                TextColumn::make('pegawaiJoin.nama_pegawai')
+                    ->label('Nama Pegawai')
+                    ->searchable(),
+                TextColumn::make('username')
+                    ->searchable(),
             ])
             ->filters([
                 //
@@ -44,6 +66,7 @@ class PegawaiUserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

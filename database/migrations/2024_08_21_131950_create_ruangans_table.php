@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ruangan', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('nama_ruangan');
+            $table->string('nama_ruangan')->unique(true);
             $table->timestamps();
             $table->softDeletes();
         });
